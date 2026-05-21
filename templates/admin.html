@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - Fitness Club{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-crown"></i> Админ-панель</h1>
+        <p>Управление клубом</p>
+    </div>
+</section>
+
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showTab('stats')">📊 Статистика</button>
+            <button class="tab-btn" onclick="showTab('trainings')">🏋️ Тренировки</button>
+            <button class="tab-btn" onclick="showTab('trainers')">👨‍🏫 Тренеры</button>
+            <button class="tab-btn" onclick="showTab('users')">👥 Пользователи</button>
+            <button class="tab-btn" onclick="showTab('prices')">💰 Цены</button>
+            <button class="tab-btn" onclick="showTab('bookings')">📅 Бронирования</button>
+        </div>
+
+        <!-- Статистика -->
+        <div id="stats-tab" class="tab-content active">
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card"><h3>Пользователей</h3><div class="number" id="stat-users">-</div></div>
+                <div class="stat-card"><h3>Тренировок</h3><div class="number" id="stat-trainings">-</div></div>
+                <div class="stat-card"><h3>Бронирований</h3><div class="number" id="stat-bookings">-</div></div>
+                <div class="stat-card"><h3>Тренеров</h3><div class="number" id="stat-trainers">-</div></div>
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-card wide">
+                    <h3>📈 Абонементы</h3>
+                    <div class="stats-bars">
+                        <div>Базовый: <span id="stat-basic">-</span></div>
+                        <div>Премиум: <span id="stat-premium">-</span></div>
+                        <div>VIP: <span id="stat-vip">-</span></div>
+                    </div>
+                </div>
+                <div class="stat-card wide">
+                    <h3>💰 Примерный доход</h3>
+                    <div class="number" id="stat-revenue">-</div>
+                    <small>на основе абонементов</small>
+                </div>
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-card wide">
+                    <h3>🔥 Популярные тренировки</h3>
+                    <div id="popular-list"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card wide">
+                <h3>📋 Последние бронирования</h3>
+                <div id="recent-bookings"></div>
+            </div>
+        </div>
+
+        <!-- Тренировки -->
+        <div id="trainings-tab" class="tab-content">
+            <button class="btn-add" onclick="showTrainingModal()">➕ Добавить тренировку</button>
+            <div class="admin-table">
+                <table>
+                    <thead><tr><th>ID</th><th>Название</th><th>Тренер</th><th>День</th><th>Время</th><th>Мест</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody id="trainings-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Тренеры -->
+        <div id="trainers-tab" class="tab-content">
+            <button class="btn-add" onclick="showTrainerModal()">➕ Добавить тренера</button>
+            <div class="admin-table">
+                <table>
+                    <thead><tr><th>ID</th><th>Имя</th><th>Специализация</th><th>Опыт</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody id="trainers-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Пользователи -->
+        <div id="users-tab" class="tab-content">
+            <div class="admin-table">
+                <table>
+                    <thead><tr><th>ID</th><th>Имя</th><th>Email</th><th>Телефон</th><th>Абонемент</th><th>Роль</th><th>Действия</th></tr></thead>
+                    <tbody id="users-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Цены -->
+        <div id="prices-tab" class="tab-content">
+            <button class="btn-add" onclick="showPriceModal()">➕ Добавить цену</button>
+            <div class="admin-table">
+                <table>
+                    <thead><tr><th>ID</th><th>Название</th><th>Цена</th><th>Дней</th><th>Популярный</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody id="prices-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Бронирования -->
+        <div id="bookings-tab" class="tab-content">
+            <div class="admin-table">
+                <table>
+                    <thead><tr><th>ID</th><th>Пользователь</th><th>Тренировка</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody id="bookings-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Модальные окна -->
+<div id="training-modal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('training-modal')">&times;</span><h2 id="training-modal-title">Добавить тренировку</h2><form id="training-form"><input type="hidden" id="training-id"><input type="text" id="training-name" placeholder="Название" required><textarea id="training-desc" placeholder="Описание"></textarea><input type="text" id="training-trainer" placeholder="Тренер" required><input type="number" id="training-max" placeholder="Максимум участников" value="20"><input type="number" id="training-duration" placeholder="Длительность (мин)" value="60"><select id="training-day" required><option value="monday">Понедельник</option><option value="tuesday">Вторник</option><option value="wednesday">Среда</option><option value="thursday">Четверг</option><option value="friday">Пятница</option><option value="saturday">Суббота</option><option value="sunday">Воскресенье</option></select><input type="time" id="training-time" required><select id="training-status"><option value="1">Активна</option><option value="0">Неактивна</option></select><button type="submit">Сохранить</button></form></div></div>
+
+<div id="trainer-modal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('trainer-modal')">&times;</span><h2 id="trainer-modal-title">Добавить тренера</h2><form id="trainer-form"><input type="hidden" id="trainer-id"><input type="text" id="trainer-name" placeholder="Имя" required><input type="text" id="trainer-spec" placeholder="Специализация"><input type="number" id="trainer-exp" placeholder="Опыт (лет)"><textarea id="trainer-bio" placeholder="Биография"></textarea><input type="text" id="trainer-photo" placeholder="Фото URL"><select id="trainer-status"><option value="1">Активен</option><option value="0">Неактивен</option></select><button type="submit">Сохранить</button></form></div></div>
+
+<div id="price-modal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('price-modal')">&times;</span><h2 id="price-modal-title">Добавить цену</h2><form id="price-form"><input type="hidden" id="price-id"><input type="text" id="price-name" placeholder="Название" required><input type="number" id="price-value" placeholder="Цена" required><input type="number" id="price-days" placeholder="Дней" required><textarea id="price-features" placeholder="Описание (через запятую)"></textarea><select id="price-popular"><option value="1">Популярный</option><option value="0">Обычный</option></select><select id="price-status"><option value="1">Активен</option><option value="0">Неактивен</option></select><button type="submit">Сохранить</button></form></div></div>
+
+<style>
+.admin-section { padding: 2rem 0; }
+.admin-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+.tab-btn { padding: 0.75rem 1.5rem; background: none; border: none; cursor: pointer; border-radius: 10px; font-size: 1rem; }
+.tab-btn.active { background: var(--primary); color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.stat-card { background: white; padding: 1.5rem; border-radius: 15px; box-shadow: var(--shadow); text-align: center; }
+.stat-card.wide { text-align: left; }
+.stat-card .number { font-size: 2rem; font-weight: bold; color: var(--primary); }
+.stats-bars div { margin: 0.5rem 0; }
+.btn-add { background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; margin-bottom: 1rem; }
+.admin-table { overflow-x: auto; background: white; border-radius: 15px; padding: 1rem; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+th { background: #f8f9fa; }
+.btn-edit { background: #ffc107; color: #333; border: none; padding: 0.25rem 0.5rem; border-radius: 5px; cursor: pointer; margin-right: 0.25rem; }
+.btn-delete { background: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 5px; cursor: pointer; }
+</style>
+
+<script>
+// Глобальные переменные
+let currentEditId = null;
+let currentEditType = null;
+
+// Загрузка данных
+async function loadStats() {
+    const res = await fetch('/api/admin/stats');
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('stat-users').textContent = data.total_users;
+    document.getElementById('stat-trainings').textContent = data.total_trainings;
+    document.getElementById('stat-bookings').textContent = data.total_bookings;
+    document.getElementById('stat-trainers').textContent = data.total_trainers;
+    document.getElementById('stat-basic').textContent = data.basic_users;
+    document.getElementById('stat-premium').textContent = data.premium_users;
+    document.getElementById('stat-vip').textContent = data.vip_users;
+    document.getElementById('stat-revenue').textContent = data.estimated_revenue?.toLocaleString() + ' ₽' || '0 ₽';
+    
+    if (data.popular_trainings) {
+        document.getElementById('popular-list').innerHTML = data.popular_trainings.map(p => `<div><b>${p.name}</b> - ${p.count} записей</div>`).join('');
+    }
+    if (data.recent_bookings) {
+        document.getElementById('recent-bookings').innerHTML = data.recent_bookings.map(b => `<div><b>${b.user_name}</b> - ${b.training_name} (${b.date})</div>`).join('');
+    }
+}
+
+async function loadTrainings() {
+    const res = await fetch('/api/admin/trainings');
+    const trainings = await res.json();
+    document.getElementById('trainings-table').innerHTML = trainings.map(t => `
+        <tr>
+            <td>${t.id}</td>
+            <td>${t.name}</td>
+            <td>${t.trainer_name}</td>
+            <td>${t.day}</td>
+            <td>${t.time}</td>
+            <td>${t.max_people}</td>
+            <td>${t.is_active ? '✅ Активна' : '❌ Неактивна'}</td>
+            <td>
+                <button class="btn-edit" onclick="openEditTraining(${t.id})">✏️</button>
+                <button class="btn-delete" onclick="deleteTraining(${t.id})">🗑️</button>
+             </td>
+        </tr>
+    `).join('');
+}
+
+async function loadTrainers() {
+    const res = await fetch('/api/admin/trainers');
+    const trainers = await res.json();
+    document.getElementById('trainers-table').innerHTML = trainers.map(t => `
+        <tr>
+            <td>${t.id}</td>
+            <td>${t.name}</td>
+            <td>${t.specialization}</td>
+            <td>${t.experience}</td>
+            <td>${t.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
+            <td>
+                <button class="btn-edit" onclick="openEditTrainer(${t.id})">✏️</button>
+                <button class="btn-delete" onclick="deleteTrainer(${t.id})">🗑️</button>
+             </td>
+        </tr>
+    `).join('');
+}
+
+async function loadUsers() {
+    const res = await fetch('/api/admin/users');
+    const users = await res.json();
+    document.getElementById('users-table').innerHTML = users.map(u => `
+        <tr>
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td>${u.phone || '-'}</td>
+            <td>
+                <select onchange="updateMembership(${u.id}, this.value)">
+                    <option ${u.membership === 'basic' ? 'selected' : ''}>basic</option>
+                    <option ${u.membership === 'premium' ? 'selected' : ''}>premium</option>
+                    <option ${u.membership === 'vip' ? 'selected' : ''}>vip</option>
+                </select>
+             </td>
+            <td>
+                <input type="checkbox" ${u.is_admin ? 'checked' : ''} onchange="updateAdmin(${u.id}, this.checked)">
+             </td>
+            <td>
+                <button class="btn-delete" onclick="deleteUser(${u.id})">🗑️</button>
+             </td>
+        </tr>
+    `).join('');
+}
+
+async function loadPrices() {
+    const res = await fetch('/api/admin/prices');
+    const prices = await res.json();
+    document.getElementById('prices-table').innerHTML = prices.map(p => `
+        <tr>
+            <td>${p.id}</td>
+            <td>${p.name}</td>
+            <td>${p.price} ₽</td>
+            <td>${p.days}</td>
+            <td>${p.is_popular ? '🔥 Да' : 'Нет'}</td>
+            <td>${p.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
+            <td>
+                <button class="btn-edit" onclick="openEditPrice(${p.id})">✏️</button>
+                <button class="btn-delete" onclick="deletePrice(${p.id})">🗑️</button>
+             </td>
+        </tr>
+    `).join('');
+}
+
+async function loadBookings() {
+    const res = await fetch('/api/admin/bookings');
+    const bookings = await res.json();
+    document.getElementById('bookings-table').innerHTML = bookings.map(b => `
+        <tr>
+            <td>${b.id}</td>
+            <td>${b.user_name}</td>
+            <td>${b.training_name}</td>
+            <td>${b.booking_date}</td>
+            <td>${b.status}</td>
+            <td><button class="btn-delete" onclick="deleteBooking(${b.id})">🗑️</button></td>
+        </tr>
+    `).join('');
+}
+
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ========== ТРЕНИРОВКИ ==========
+function showTrainingModal(isEdit = false) {
+    document.getElementById('training-modal').style.display = 'block';
+    if (!isEdit) {
+        currentEditId = null;
+        document.getElementById('training-modal-title').textContent = '➕ Добавить тренировку';
+        document.getElementById('training-form').reset();
+        document.getElementById('training-id').value = '';
+    }
+}
+
+async function openEditTraining(id) {
+    const res = await fetch('/api/admin/trainings');
+    const trainings = await res.json();
+    const t = trainings.find(t => t.id === id);
+    if (t) {
+        currentEditId = t.id;
+        document.getElementById('training-modal-title').textContent = '✏️ Редактировать тренировку';
+        document.getElementById('training-id').value = t.id;
+        document.getElementById('training-name').value = t.name;
+        document.getElementById('training-desc').value = t.description || '';
+        document.getElementById('training-trainer').value = t.trainer_name;
+        document.getElementById('training-max').value = t.max_people;
+        document.getElementById('training-duration').value = t.duration;
+        document.getElementById('training-day').value = t.day;
+        document.getElementById('training-time').value = t.time;
+        document.getElementById('training-status').value = t.is_active ? '1' : '0';
+        document.getElementById('training-modal').style.display = 'block';
+    }
+}
+
+document.getElementById('training-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('training-id').value;
+    const data = {
+        name: document.getElementById('training-name').value,
+        description: document.getElementById('training-desc').value,
+        trainer_name: document.getElementById('training-trainer').value,
+        max_people: parseInt(document.getElementById('training-max').value),
+        duration: parseInt(document.getElementById('training-duration').value),
+        day: document.getElementById('training-day').value,
+        time: document.getElementById('training-time').value,
+        is_active: document.getElementById('training-status').value === '1'
+    };
+    
+    let url, method;
+    if (id) {
+        url = `/api/admin/training/${id}`;
+        method = 'PUT';
+    } else {
+        url = '/api/admin/training';
+        method = 'POST';
+    }
+    
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (res.ok) {
+        closeModal('training-modal');
+        loadTrainings();
+        loadStats();
+    } else {
+        const error = await res.json();
+        alert('Ошибка: ' + error.error);
+    }
+};
+
+async function deleteTraining(id) {
+    if (confirm('Удалить тренировку?')) {
+        await fetch(`/api/admin/training/${id}`, { method: 'DELETE' });
+        loadTrainings();
+        loadStats();
+    }
+}
+
+// ========== ТРЕНЕРЫ ==========
+function showTrainerModal(isEdit = false) {
+    document.getElementById('trainer-modal').style.display = 'block';
+    if (!isEdit) {
+        currentEditId = null;
+        document.getElementById('trainer-modal-title').textContent = '➕ Добавить тренера';
+        document.getElementById('trainer-form').reset();
+        document.getElementById('trainer-id').value = '';
+    }
+}
+
+async function openEditTrainer(id) {
+    const res = await fetch('/api/admin/trainers');
+    const trainers = await res.json();
+    const t = trainers.find(t => t.id === id);
+    if (t) {
+        currentEditId = t.id;
+        document.getElementById('trainer-modal-title').textContent = '✏️ Редактировать тренера';
+        document.getElementById('trainer-id').value = t.id;
+        document.getElementById('trainer-name').value = t.name;
+        document.getElementById('trainer-spec').value = t.specialization || '';
+        document.getElementById('trainer-exp').value = t.experience;
+        document.getElementById('trainer-bio').value = t.bio || '';
+        document.getElementById('trainer-photo').value = t.photo_url || '';
+        document.getElementById('trainer-status').value = t.is_active ? '1' : '0';
+        document.getElementById('trainer-modal').style.display = 'block';
+    }
+}
+
+document.getElementById('trainer-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('trainer-id').value;
+    const data = {
+        name: document.getElementById('trainer-name').value,
+        specialization: document.getElementById('trainer-spec').value,
+        experience: parseInt(document.getElementById('trainer-exp').value) || 0,
+        bio: document.getElementById('trainer-bio').value,
+        photo_url: document.getElementById('trainer-photo').value,
+        is_active: document.getElementById('trainer-status').value === '1'
+    };
+    
+    let url, method;
+    if (id) {
+        url = `/api/admin/trainer/${id}`;
+        method = 'PUT';
+    } else {
+        url = '/api/admin/trainer';
+        method = 'POST';
+    }
+    
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (res.ok) {
+        closeModal('trainer-modal');
+        loadTrainers();
+        loadStats();
+    } else {
+        const error = await res.json();
+        alert('Ошибка: ' + error.error);
+    }
+};
+
+async function deleteTrainer(id) {
+    if (confirm('Удалить тренера?')) {
+        await fetch(`/api/admin/trainer/${id}`, { method: 'DELETE' });
+        loadTrainers();
+        loadStats();
+    }
+}
+
+// ========== ЦЕНЫ ==========
+function showPriceModal(isEdit = false) {
+    document.getElementById('price-modal').style.display = 'block';
+    if (!isEdit) {
+        currentEditId = null;
+        document.getElementById('price-modal-title').textContent = '➕ Добавить цену';
+        document.getElementById('price-form').reset();
+        document.getElementById('price-id').value = '';
+    }
+}
+
+async function openEditPrice(id) {
+    const res = await fetch('/api/admin/prices');
+    const prices = await res.json();
+    const p = prices.find(p => p.id === id);
+    if (p) {
+        currentEditId = p.id;
+        document.getElementById('price-modal-title').textContent = '✏️ Редактировать цену';
+        document.getElementById('price-id').value = p.id;
+        document.getElementById('price-name').value = p.name;
+        document.getElementById('price-value').value = p.price;
+        document.getElementById('price-days').value = p.days;
+        document.getElementById('price-features').value = p.features || '';
+        document.getElementById('price-popular').value = p.is_popular ? '1' : '0';
+        document.getElementById('price-status').value = p.is_active ? '1' : '0';
+        document.getElementById('price-modal').style.display = 'block';
+    }
+}
+
+document.getElementById('price-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('price-id').value;
+    const data = {
+        name: document.getElementById('price-name').value,
+        price: parseInt(document.getElementById('price-value').value),
+        days: parseInt(document.getElementById('price-days').value),
+        features: document.getElementById('price-features').value,
+        is_popular: document.getElementById('price-popular').value === '1',
+        is_active: document.getElementById('price-status').value === '1'
+    };
+    
+    let url, method;
+    if (id) {
+        url = `/api/admin/price/${id}`;
+        method = 'PUT';
+    } else {
+        url = '/api/admin/price';
+        method = 'POST';
+    }
+    
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (res.ok) {
+        closeModal('price-modal');
+        loadPrices();
+        loadStats();
+    } else {
+        const error = await res.json();
+        alert('Ошибка: ' + error.error);
+    }
+};
+
+async function deletePrice(id) {
+    if (confirm('Удалить цену?')) {
+        await fetch(`/api/admin/price/${id}`, { method: 'DELETE' });
+        loadPrices();
+        loadStats();
+    }
+}
+
+// ========== ПОЛЬЗОВАТЕЛИ ==========
+async function updateMembership(userId, membership) {
+    await fetch(`/api/admin/user/${userId}`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ membership }) 
+    });
+    loadStats();
+}
+
+async function updateAdmin(userId, isAdmin) {
+    await fetch(`/api/admin/user/${userId}`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ is_admin: isAdmin }) 
+    });
+}
+
+async function deleteUser(id) {
+    if (confirm('Удалить пользователя?')) {
+        await fetch(`/api/admin/user/${id}`, { method: 'DELETE' });
+        loadUsers();
+        loadStats();
+    }
+}
+
+// ========== БРОНИРОВАНИЯ ==========
+async function deleteBooking(id) {
+    if (confirm('Удалить бронирование?')) {
+        await fetch(`/api/admin/booking/${id}`, { method: 'DELETE' });
+        loadBookings();
+        loadStats();
+    }
+}
+
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+// Инициализация
+window.onload = () => {
+    loadStats();
+    loadTrainings();
+    loadTrainers();
+    loadUsers();
+    loadPrices();
+    loadBookings();
+};
+</script>
+{% endblock %}

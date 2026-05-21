@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fitness Club{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo"><i class="fas fa-dumbbell"></i> Fitness Club</a>
+            <div class="nav-links">
+                <a href="/">Главная</a>
+                <a href="/schedule">Расписание</a>
+                <a href="/trainers">Тренеры</a>
+                <a href="/prices">Цены</a>
+                <a href="/contacts">Контакты</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/profile">Профиль</a>
+                    {% if current_user.is_admin %}
+                        <a href="/admin">Админ</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div id="auth-buttons" class="auth-buttons">
+                {% if current_user.is_authenticated %}
+                    <span class="user-name">{{ current_user.name }}</span>
+                    <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                {% else %}
+                    <button onclick="showLoginModal()" class="btn-login"><i class="fas fa-sign-in-alt"></i> Вход</button>
+                    <button onclick="showRegisterModal()" class="btn-register"><i class="fas fa-user-plus"></i> Регистрация</button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3><i class="fas fa-dumbbell"></i> Fitness Club</h3>
+                    <p>Твой путь к здоровью и красоте начинается здесь</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Спортивная, 15</p>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@fitnessclub.ru</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Режим работы</h4>
+                    <p>Пн-Пт: 7:00 - 23:00</p>
+                    <p>Сб-Вс: 9:00 - 22:00</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Мы в соцсетях</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Fitness Club. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальные окна -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('login-modal')">&times;</span>
+            <h2>Вход в аккаунт</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Нет аккаунта? <a href="#" onclick="closeModal('login-modal'); showRegisterModal(); return false;">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('register-modal')">&times;</span>
+            <h2>Регистрация</h2>
+            <form id="register-form">
+                <input type="text" id="reg-name" placeholder="Имя" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)" required>
+                <input type="tel" id="reg-phone" placeholder="Телефон">
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Уже есть аккаунт? <a href="#" onclick="closeModal('register-modal'); showLoginModal(); return false;">Войти</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

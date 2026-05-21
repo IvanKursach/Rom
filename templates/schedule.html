@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Расписание - Fitness Club{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-calendar-alt"></i> Расписание тренировок</h1>
+        <p>Выберите удобное время и направление</p>
+    </div>
+</section>
+
+<section class="schedule-filters">
+    <div class="container">
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-day="all">Все дни</button>
+            <button class="filter-btn" data-day="monday">Понедельник</button>
+            <button class="filter-btn" data-day="tuesday">Вторник</button>
+            <button class="filter-btn" data-day="wednesday">Среда</button>
+            <button class="filter-btn" data-day="thursday">Четверг</button>
+            <button class="filter-btn" data-day="friday">Пятница</button>
+            <button class="filter-btn" data-day="saturday">Суббота</button>
+            <button class="filter-btn" data-day="sunday">Воскресенье</button>
+        </div>
+    </div>
+</section>
+
+<section class="schedule-section">
+    <div class="container">
+        <div id="schedule-list" class="schedule-list">
+            {% set days = {'monday': 'Понедельник', 'tuesday': 'Вторник', 'wednesday': 'Среда', 'thursday': 'Четверг', 'friday': 'Пятница', 'saturday': 'Суббота', 'sunday': 'Воскресенье'} %}
+            {% set grouped = {} %}
+            {% for t in trainings %}
+                {% if t.day not in grouped %}{% set _ = grouped.update({t.day: []}) %}{% endif %}
+                {% set _ = grouped[t.day].append(t) %}
+            {% endfor %}
+            
+            {% for day, items in grouped.items() %}
+            <div class="schedule-day" data-day="{{ day }}">
+                <h3 class="day-title">📅 {{ days[day] }}</h3>
+                <div class="schedule-items">
+                    {% for t in items %}
+                    <div class="schedule-card">
+                        <div class="schedule-time">⏰ {{ t.time.strftime('%H:%M') if t.time else '--:--' }}</div>
+                        <div class="schedule-info">
+                            <h4>💪 {{ t.name }}</h4>
+                            <p><i class="fas fa-user"></i> {{ t.trainer_name }}</p>
+                            <p><i class="fas fa-clock"></i> {{ t.duration }} мин | <i class="fas fa-users"></i> {{ t.max_people }} мест</p>
+                        </div>
+                        <button onclick="bookTraining({{ t.id }}, '{{ t.name }}')" class="btn-book-schedule">✨ Записаться</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+.page-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 100px 0 60px; text-align: center; margin-top: 60px; }
+.schedule-filters { padding: 2rem 0; background: #f8f9fa; }
+.filter-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.filter-btn { padding: 0.5rem 1.5rem; border: none; background: white; border-radius: 25px; cursor: pointer; transition: 0.3s; }
+.filter-btn.active, .filter-btn:hover { background: var(--primary); color: white; }
+.schedule-day { margin-bottom: 2rem; }
+.day-title { background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 50px; display: inline-block; margin-bottom: 1rem; }
+.schedule-card { display: flex; align-items: center; background: white; padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem; box-shadow: var(--shadow); transition: 0.3s; }
+.schedule-card:hover { transform: translateX(10px); }
+.schedule-time { font-size: 1.5rem; font-weight: bold; color: var(--primary); min-width: 100px; }
+.schedule-info { flex: 1; padding: 0 1rem; }
+.btn-book-schedule { background: var(--primary); color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; }
+@media (max-width: 768px) { .schedule-card { flex-direction: column; text-align: center; } .schedule-time { margin-bottom: 0.5rem; } }
+</style>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const day = this.dataset.day;
+        document.querySelectorAll('.schedule-day').forEach(dayEl => {
+            if (day === 'all') dayEl.style.display = 'block';
+            else dayEl.style.display = dayEl.dataset.day === day ? 'block' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

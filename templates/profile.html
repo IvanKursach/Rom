@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет - Fitness Club{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-user-circle"></i> Личный кабинет</h1>
+        <p>Управляйте своими тренировками и абонементом</p>
+    </div>
+</section>
+
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+                <h3 id="profile-name">{{ current_user.name }}</h3>
+                <p class="profile-email">{{ current_user.email }}</p>
+                <p class="profile-phone" id="profile-phone"><i class="fas fa-phone"></i> {{ current_user.phone or 'Не указан' }}</p>
+                <div class="membership-info">
+                    <p>Абонемент:</p>
+                    <div class="membership-badge {{ current_user.membership }}">{{ current_user.membership|capitalize }}</div>
+                </div>
+                <button onclick="updateProfile()" class="btn-edit-profile"><i class="fas fa-edit"></i> Редактировать профиль</button>
+                {% if current_user.is_admin %}
+                <a href="/admin" class="btn-admin"><i class="fas fa-crown"></i> Админ-панель</a>
+                {% endif %}
+            </div>
+            <div class="profile-content">
+                <h3><i class="fas fa-fire"></i> Мои тренировки</h3>
+                <div id="my-bookings" class="bookings-list">
+                    {% if bookings %}
+                        {% for booking, training in bookings %}
+                        <div class="booking-item">
+                            <div class="booking-info">
+                                <h4>💪 {{ training.name }}</h4>
+                                <p><i class="fas fa-user"></i> {{ training.trainer_name }}</p>
+                                <p><i class="fas fa-calendar"></i> {{ training.day|capitalize }}, {{ training.time.strftime('%H:%M') if training.time else '--:--' }}</p>
+                                <p><i class="fas fa-clock"></i> {{ training.duration }} мин</p>
+                            </div>
+                            <button onclick="cancelBooking({{ booking.id }})" class="btn-cancel">❌ Отменить</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">✨ У вас нет активных записей</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.profile-section { padding: 4rem 0; min-height: calc(100vh - 400px); }
+.profile-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+.profile-sidebar { background: white; border-radius: 20px; padding: 2rem; text-align: center; box-shadow: var(--shadow); }
+.profile-avatar i { font-size: 5rem; color: var(--primary); }
+.profile-email { color: #666; margin: 0.5rem 0; }
+.membership-info { margin: 1.5rem 0; }
+.membership-badge { display: inline-block; padding: 0.5rem 1.5rem; border-radius: 25px; font-weight: bold; }
+.membership-badge.basic { background: #6c757d; color: white; }
+.membership-badge.premium { background: linear-gradient(135deg, #ffd93d, #ff6b6b); color: white; }
+.membership-badge.vip { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+.btn-edit-profile, .btn-admin { width: 100%; padding: 0.75rem; border: none; border-radius: 25px; cursor: pointer; margin-top: 0.5rem; }
+.btn-edit-profile { background: var(--primary); color: white; }
+.btn-admin { background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; display: inline-block; }
+.profile-content { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); }
+.booking-item { background: #f8f9fa; padding: 1rem; border-radius: 15px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.booking-info h4 { margin-bottom: 0.5rem; color: var(--primary); }
+.btn-cancel { background: #dc3545; color: white; padding: 0.5rem 1rem; border: none; border-radius: 20px; cursor: pointer; }
+.no-data { text-align: center; padding: 3rem; color: #999; }
+@media (max-width: 768px) { .profile-grid { grid-template-columns: 1fr; } .booking-item { flex-direction: column; text-align: center; gap: 1rem; } }
+</style>
+{% endblock %}

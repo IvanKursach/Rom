@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Fitness Club{% endblock %}
+
+{% block content %}
+<style>
+.hero {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    margin-top: 60px;
+    position: relative;
+    background: url('https://mygym.su/wp-content/uploads/2022/05/photoeditorsdk-export8.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: fadeInUp 1s ease;
+}
+
+.hero-content p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    animation: fadeInUp 1s ease 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Блок "О нас" */
+.about-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.about-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
+    position: relative;
+}
+
+.about-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.about-description {
+    text-align: center;
+    max-width: 800px;
+    margin: 2rem auto;
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.about-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.gallery-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 1.5rem;
+    color: white;
+    transform: translateY(100%);
+    transition: transform 0.3s;
+}
+
+.gallery-item:hover .gallery-overlay {
+    transform: translateY(0);
+}
+
+.gallery-overlay h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.gallery-overlay p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Особенности */
+.features {
+    padding: 5rem 0;
+    background: #f8f9fa;
+}
+
+.trainings-section {
+    padding: 5rem 0;
+}
+
+@media (max-width: 768px) {
+    .hero {
+        min-height: 70vh;
+    }
+    
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-content p {
+        font-size: 1rem;
+    }
+    
+    .about-section h2 {
+        font-size: 2rem;
+    }
+    
+    .about-description {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .gallery-item img {
+        height: 220px;
+    }
+}
+</style>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Стань лучшей версией себя</h1>
+        <p>Современный фитнес-клуб с профессиональными тренерами</p>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2>Почему выбирают нас</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-chalkboard-user"></i>
+                <h3>Опытные тренеры</h3>
+                <p>Профессионалы с международными сертификатами</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-clock"></i>
+                <h3>Удобное расписание</h3>
+                <p>Тренировки с 7:00 до 23:00 без выходных</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-heartbeat"></i>
+                <h3>Современное оборудование</h3>
+                <p>Новейшие тренажеры от ведущих брендов</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Групповые программы</h3>
+                <p>Более 20 различных направлений</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="trainings-section">
+    <div class="container">
+        <h2>Наши тренировки</h2>
+        <div id="trainings-list" class="trainings-grid">
+            <div class="loading-skeleton">Загрузка...</div>
+        </div>
+        <div class="text-center">
+            <a href="/schedule" class="btn-more">Смотреть все тренировки →</a>
+        </div>
+    </div>
+</section>
+
+<script>
+// Загрузка тренировок для главной страницы
+async function loadTrainings() {
+    const container = document.getElementById('trainings-list');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-skeleton">📋 Загрузка тренировок...</div>';
+    
+    try {
+        const response = await fetch('/api/trainings');
+        
+        if (!response.ok) {
+            throw new Error('Ошибка загрузки');
+        }
+        
+        const trainings = await response.json();
+        
+        if (!trainings || trainings.length === 0) {
+            container.innerHTML = '<div class="no-data">😕 Нет доступных тренировок</div>';
+            return;
+        }
+        
+        const topTrainings = trainings.slice(0, 4);
+        
+        const days = {
+            'monday': 'Понедельник',
+            'tuesday': 'Вторник',
+            'wednesday': 'Среда',
+            'thursday': 'Четверг',
+            'friday': 'Пятница',
+            'saturday': 'Суббота',
+            'sunday': 'Воскресенье'
+        };
+        
+        container.innerHTML = topTrainings.map(t => `
+            <div class="training-card">
+                <h3><i class="fas fa-fire"></i> ${escapeHtml(t.name)}</h3>
+                <p class="trainer"><i class="fas fa-user"></i> ${escapeHtml(t.trainer_name || 'Не указан')}</p>
+                <div class="details">
+                    <span><i class="fas fa-clock"></i> ${t.duration || 0} мин</span>
+                    <span><i class="fas fa-users"></i> ${t.max_people || 0} мест</span>
+                </div>
+                <p><i class="fas fa-calendar"></i> ${days[t.day] || t.day}, ${t.time || '--:--'}</p>
+                <button onclick="bookTraining(${t.id}, '${escapeHtml(t.name)}')" class="btn-book">Записаться</button>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        container.innerHTML = '<div class="error-message">⚠️ Ошибка загрузки тренировок. <button onclick="loadTrainings()">Повторить</button></div>';
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+async function bookTraining(id, name) {
+    try {
+        const response = await fetch('/api/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ training_id: id })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert(`✅ Вы записаны на "${name}"!`);
+        } else {
+            alert(result.error || '❌ Ошибка записи');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('❌ Ошибка соединения');
+    }
+}
+
+// Загружаем тренировки при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadTrainings);
+</script>
+{% endblock %}
